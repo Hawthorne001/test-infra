@@ -13,10 +13,18 @@
 # limitations under the License.
 
 # pylint: disable=line-too-long
+import argparse
+import difflib
+import filecmp
 import hashlib
-import math
 import json
+import math
+import os
+import pathlib
 import re
+import shutil
+import sys
+import tempfile
 import yaml
 import jinja2 # pylint: disable=import-error
 
@@ -28,15 +36,16 @@ from helpers import ( # pylint: disable=import-error, no-name-in-module
     distros_ssh_user,
     k8s_version_info,
     should_skip_newer_k8s,
+    script_dir,
 )
 
 # These are job tab names of unsupported grid combinations
 skip_jobs = [
 ]
 
-image = "gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master"
+image = "gcr.io/k8s-staging-test-infra/kubekins-e2e:v20241230-3006692a6f-master"
 
-loader = jinja2.FileSystemLoader(searchpath="./templates")
+loader = jinja2.FileSystemLoader(searchpath=os.path.join(script_dir, "templates"))
 
 # A helper function to construct the URLs to our marker files
 def marker_updown_green(kops_version):
@@ -583,6 +592,20 @@ def generate_misc():
                                 '--zones=us-west-2a',
                                 ],
                    extra_dashboards=['kops-network-plugins', 'kops-ipv6']),
+        # A special test for IPv6 using Kindnet CNI
+        build_test(name_override="kops-aws-cni-kindnet-ipv6",
+                   cloud="aws",
+                   distro="u2404arm64",
+                   k8s_version="stable",
+                   networking="kindnet",
+                   runs_per_day=3,
+                   extra_flags=['--ipv6',
+                                '--topology=private',
+                                '--dns=public',
+                                '--bastion',
+                                '--zones=us-west-2a',
+                                ],
+                   extra_dashboards=['kops-network-plugins', 'kops-ipv6']),
         # A special test for IPv6 on Flatcar
         build_test(name_override="kops-aws-ipv6-flatcar",
                    cloud="aws",
@@ -851,11 +874,10 @@ def generate_misc():
                    skip_regex=r'\[Slow\]|\[Serial\]|\[Disruptive\]|\[Flaky\]|HostPort|two.untainted.nodes'),
 
         # A job to isolate a test failure reported in
-        # https://github.com/kubernetes/kubernetes/issues/123255
-        build_test(name_override="kops-aws-k28-hostname-bug123255",
+        # https://github.com/kubernetes/kubernetes/issues/121018
+        build_test(name_override="kops-aws-hostname-bug121018",
                    cloud="aws",
                    distro="al2023",
-                   k8s_version="1.28",
                    networking="cilium",
                    skip_regex=r'\[Slow\]|\[Serial\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|nfs|NFS|Gluster|NodeProblemDetector|fallback.to.local.terminating.endpoints.when.there.are.no.ready.endpoints.with.externalTrafficPolicy.Local|Services.*rejected.*endpoints|TCP.CLOSE_WAIT|external.IP.is.not.assigned.to.a.node|same.port.number.but.different.protocols|same.hostPort.but.different.hostIP.and.protocol|serve.endpoints.on.same.port.and.different.protocols|should.check.kube-proxy.urls|should.verify.that.all.nodes.have.volume.limits',
                    runs_per_day=3,
@@ -884,7 +906,45 @@ def generate_misc():
                    #   support SELinux and there are several subvariants of local volumes
                    #   that multiply nr. of tests.
                    # - FeatureGate:SELinuxMount: the feature gate is alpha / disabled by default
-                   #   in v1.30.
+                   #   in v1.32.
+                   # - FeatureGate:SELinuxChangePolicy: the feature gate is alpha / disabled by default
+                   #   in v1.32.
+                   skip_regex=r"\[Feature:Volumes\]|\[Driver:.nfs\]|\[Driver:.local\]|\[FeatureGate:SELinuxMount\]|\[FeatureGate:SELinuxChangePolicy\]",
+                   # [Serial] and [Disruptive] are intentionally not skipped, therefore run
+                   # everything as serial.
+                   test_parallelism=1,
+                   # Serial and Disruptive tests can be slow.
+                   test_timeout_minutes=120,
+                   runs_per_day=3),
+
+        # [sig-storage, @jsafrane] A one-off scenario testing SELinuxChangePolicy feature (alpha in v1.32).
+        # and opt-in selinux-warning-controller.
+        # This will need to merge with kops-aws-selinux when SELinuxMount gets enabled by default.
+        build_test(name_override="kops-aws-selinux-changepolicy",
+                   # RHEL8 VM image is enforcing SELinux by default.
+                   cloud="aws",
+                   distro="rhel8",
+                   networking="cilium",
+                   k8s_version="ci",
+                   kops_channel="alpha",
+                   feature_flags=['SELinuxMount'],
+                   kubernetes_feature_gates="SELinuxChangePolicy",
+                   extra_flags=[
+                       "--set=cluster.spec.containerd.selinuxEnabled=true",
+                       # Run all default controllers ("*") + selinux-warning-controller.
+                       "--set=cluster.spec.kubeControllerManager.controllers=*",
+                       "--set=cluster.spec.kubeControllerManager.controllers=selinux-warning-controller"
+                   ],
+                   focus_regex=r"\[Feature:SELinux\]",
+                   # Skip:
+                   # - Feature:Volumes: skips iSCSI and Ceph tests, they don't have client tools
+                   #   installed on nodes.
+                   # - Driver: nfs: NFS does not have client tools installed on nodes.
+                   # - Driver: local: this is optimization only, the volume plugin does not
+                   #   support SELinux and there are several subvariants of local volumes
+                   #   that multiply nr. of tests.
+                   # - FeatureGate:SELinuxMount: the feature gate is alpha / disabled by default
+                   #   in v1.32.
                    skip_regex=r"\[Feature:Volumes\]|\[Driver:.nfs\]|\[Driver:.local\]|\[FeatureGate:SELinuxMount\]",
                    # [Serial] and [Disruptive] are intentionally not skipped, therefore run
                    # everything as serial.
@@ -893,7 +953,8 @@ def generate_misc():
                    test_timeout_minutes=120,
                    runs_per_day=3),
 
-        # [sig-storage, @jsafrane] A one-off scenario testing SELinuxMount feature (alpha in v1.30).
+        # [sig-storage, @jsafrane] A one-off scenario testing all SELinux related feature gates enabled
+        # and opt-in selinux-warning-controller.
         # This will need to merge with kops-aws-selinux when SELinuxMount gets enabled by default.
         build_test(name_override="kops-aws-selinux-alpha",
                    # RHEL8 VM image is enforcing SELinux by default.
@@ -903,9 +964,12 @@ def generate_misc():
                    k8s_version="ci",
                    kops_channel="alpha",
                    feature_flags=['SELinuxMount'],
-                   kubernetes_feature_gates="SELinuxMount",
+                   kubernetes_feature_gates="SELinuxMount,SELinuxChangePolicy",
                    extra_flags=[
                        "--set=cluster.spec.containerd.selinuxEnabled=true",
+                       # Run all default controllers ("*") + selinux-warning-controller.
+                       "--set=cluster.spec.kubeControllerManager.controllers=*",
+                       "--set=cluster.spec.kubeControllerManager.controllers=selinux-warning-controller"
                    ],
                    focus_regex=r"\[Feature:SELinux\]",
                    # Skip:
@@ -925,6 +989,23 @@ def generate_misc():
                    test_timeout_minutes=120,
                    runs_per_day=3),
 
+
+        # [sig-network, @aojea] A job to test SIG Network beta features on Kops to validate "real-world" usage availability.
+        build_test(name_override="kops-aws-sig-network-beta",
+                   cloud="aws",
+                   networking="cilium",
+                   k8s_version="ci",
+                   kops_version=marker_updown_green("master"),
+                   kops_channel="alpha",
+                   kubernetes_feature_gates="AllBeta",
+                   extra_flags=[
+                       "--set=spec.kubeAPIServer.runtimeConfig=api/all=true",
+                   ],
+                   focus_regex=r"\[sig-network\]",
+                   skip_regex=r"Alpha|LoadBalancer|NetworkPolicy|Disruptive|Flaky|IPv6|PerformanceDNS|SCTP|Ingress|KubeProxy|Traffic.Distribution|Topology.Hints",
+                   test_timeout_minutes=120,
+                   runs_per_day=3,
+                   extra_dashboards=['kops-misc']),
 
         # test kube-up to kops jobs migration
         build_test(name_override="ci-kubernetes-e2e-cos-gce-canary",
@@ -1002,7 +1083,7 @@ def generate_misc():
                    k8s_version="ci",
                    kops_version=marker_updown_green("master"),
                    kops_channel="alpha",
-                   build_cluster="k8s-infra-prow-build",
+                   build_cluster="k8s-infra-kops-prow-build",
                    extra_flags=[
                        "--set=spec.packages=nfs-utils",
                    ],
@@ -1041,7 +1122,6 @@ def generate_misc():
                    k8s_version="ci",
                    kops_version=marker_updown_green("master"),
                    kops_channel="alpha",
-                   build_cluster="eks-prow-build-cluster",
                    extra_flags=[
                        "--set=spec.kubeAPIServer.logLevel=4",
                        "--set=spec.kubeAPIServer.auditLogMaxSize=2000000000",
@@ -1063,7 +1143,6 @@ def generate_misc():
                    kops_version=marker_updown_green("master"),
                    cluster_name="kubernetes-e2e-al2023-aws-conformance-aws-cni.k8s.local",
                    kops_channel="alpha",
-                   build_cluster="eks-prow-build-cluster",
                    extra_flags=[
                        "--node-size=r5d.xlarge",
                        "--master-size=r5d.xlarge",
@@ -1090,7 +1169,7 @@ def generate_misc():
                    kops_version=marker_updown_green("master"),
                    cluster_name="kubernetes-e2e-al2023-aws-conformance-aws-cni-canary.k8s.local",
                    kops_channel="alpha",
-                   build_cluster="k8s-infra-prow-build",
+                   build_cluster="k8s-infra-kops-prow-build",
                    extra_flags=[
                        "--node-size=r5d.xlarge",
                        "--master-size=r5d.xlarge",
@@ -1117,7 +1196,7 @@ def generate_misc():
                    kops_version=marker_updown_green("master"),
                    cluster_name="kubernetes-e2e-al2023-aws-conformance-cilium.k8s.local",
                    kops_channel="alpha",
-                   build_cluster="k8s-infra-prow-build",
+                   build_cluster="k8s-infra-kops-prow-build",
                    extra_flags=[
                        "--set=spec.kubeAPIServer.logLevel=4",
                        "--set=spec.kubeAPIServer.auditLogMaxSize=2000000000",
@@ -1179,7 +1258,7 @@ def generate_misc():
                    k8s_version="ci",
                    kops_version=marker_updown_green("master"),
                    kops_channel="alpha",
-                   build_cluster="eks-prow-build-cluster",
+                   build_cluster="k8s-infra-kops-prow-build",
                    extra_flags=[
                        "--node-size=r5d.xlarge",
                        "--master-size=r5d.xlarge",
@@ -1206,6 +1285,7 @@ def generate_misc():
                    kops_version=marker_updown_green("master"),
                    kops_channel="alpha",
                    extra_flags=[
+                       "--set=cluster.spec.cloudConfig.manageStorageClasses=false",
                        "--image=cos-cloud/cos-105-17412-370-67",
                        "--node-volume-size=100",
                        "--gce-service-account=default",
@@ -1225,7 +1305,7 @@ def generate_misc():
                    k8s_version="ci",
                    kops_version=marker_updown_green("master"),
                    kops_channel="alpha",
-                   build_cluster="k8s-infra-prow-build",
+                   build_cluster="k8s-infra-kops-prow-build",
                    extra_flags=[
                        "--node-volume-size=100",
                        "--set=spec.packages=nfs-utils",
@@ -1245,7 +1325,7 @@ def generate_misc():
                    k8s_version="ci",
                    kops_version=marker_updown_green("master"),
                    kops_channel="alpha",
-                   build_cluster="k8s-infra-prow-build",
+                   build_cluster="k8s-infra-kops-prow-build",
                    extra_flags=[
                        "--set=spec.kubeAPIServer.logLevel=4",
                        "--set=spec.kubeAPIServer.auditLogMaxSize=2000000000",
@@ -1292,7 +1372,7 @@ def generate_misc():
 ################################
 def generate_conformance():
     results = []
-    for version in ['1.30', '1.29']:
+    for version in ['1.32', '1.31', '1.30', '1.29']:
         results.append(
             build_test(
                 cloud='aws',
@@ -1301,6 +1381,10 @@ def generate_conformance():
                 kops_channel='alpha',
                 name_override=f"kops-aws-conformance-{version.replace('.', '-')}",
                 networking='calico',
+                distro="u2404",
+                extra_flags=["--zones=eu-central-1a",
+                             "--node-size=t3.large",
+                             "--master-size=t3.large"],
                 test_parallelism=1,
                 test_timeout_minutes=150,
                 extra_dashboards=['kops-conformance'],
@@ -1398,7 +1482,7 @@ def generate_presubmits_distros():
 #######################################
 def generate_network_plugins():
 
-    plugins = ['amazon-vpc', 'calico', 'canal', 'cilium', 'cilium-etcd', 'cilium-eni', 'flannel', 'kopeio', 'kuberouter']
+    plugins = ['amazon-vpc', 'calico', 'canal', 'cilium', 'cilium-etcd', 'cilium-eni', 'flannel', 'kindnet', 'kopeio', 'kuberouter']
     results = []
     for plugin in plugins:
         networking_arg = plugin.replace('amazon-vpc', 'amazonvpc').replace('kuberouter', 'kube-router')
@@ -1431,7 +1515,7 @@ def generate_upgrades():
 
     kops28 = 'v1.28.7'
     kops29 = 'v1.29.2'
-    kops30 = 'v1.30.1'
+    kops30 = 'v1.30.3'
 
     versions_list = [
         #  kops    k8s          kops      k8s
@@ -1505,6 +1589,11 @@ def generate_upgrades():
                        env=env,
                        )
         )
+        # Older kops versions have a conflict between aws-load-balancer-controller and cert-manager
+        # The fix was only backported to 1.30, so we skip many-addons for older upgrades.
+        # Ref: https://github.com/kubernetes/kops/pull/16743
+        if kops_a in (kops28, kops29):
+            continue
         results.append(
             build_test(name_override=job_name + "-many-addons",
                        distro='u2204',
@@ -1572,7 +1661,6 @@ def generate_presubmits_scale():
         presubmit_test(
             name='presubmit-kops-aws-scale-amazonvpc',
             scenario='scalability',
-            build_cluster="eks-prow-build-cluster",
             # only helps with setting the right anotation test.kops.k8s.io/networking
             networking='amazonvpc',
             always_run=False,
@@ -1583,7 +1671,6 @@ def generate_presubmits_scale():
         presubmit_test(
             name='presubmit-kops-aws-scale-amazonvpc-using-cl2',
             scenario='scalability',
-            build_cluster="eks-prow-build-cluster",
             # only helps with setting the right anotation test.kops.k8s.io/networking
             networking='amazonvpc',
             always_run=False,
@@ -1715,6 +1802,38 @@ def generate_presubmits_scale():
                 'CL2_ENABLE_VIOLATIONS_FOR_NETWORK_PROGRAMMING_LATENCIES': "true",
                 'CL2_NETWORK_PROGRAMMING_LATENCY_THRESHOLD': "20s"
             }
+        ),
+        presubmit_test(
+            name='presubmit-kops-gce-small-scale-kindnet-using-cl2',
+            scenario='scalability',
+            # only helps with setting the right anotation test.kops.k8s.io/networking
+            networking='gce',
+            cloud="gce",
+            always_run=False,
+            artifacts='$(ARTIFACTS)',
+            test_timeout_minutes=450,
+            env={
+                'CNI_PLUGIN': "kindnet",
+                'KUBE_PROXY_MODE': 'nftables',
+                'KUBE_NODE_COUNT': "100",
+                'CL2_SCHEDULER_THROUGHPUT_THRESHOLD': "20",
+                'CONTROL_PLANE_COUNT': "1",
+                'CONTROL_PLANE_SIZE': "c3-standard-88",
+                'CL2_LOAD_TEST_THROUGHPUT': "50",
+                'CL2_DELETE_TEST_THROUGHPUT': "50",
+                'CL2_RATE_LIMIT_POD_CREATION': "false",
+                'NODE_MODE': "master",
+                'PROMETHEUS_SCRAPE_KUBE_PROXY': "true",
+                'CL2_ENABLE_DNS_PROGRAMMING': "true",
+                'CL2_ENABLE_API_AVAILABILITY_MEASUREMENT': "true",
+                'CL2_API_AVAILABILITY_PERCENTAGE_THRESHOLD': "99.5",
+                'CL2_ALLOWED_SLOW_API_CALLS': "1",
+                'ENABLE_PROMETHEUS_SERVER': "true",
+                'PROMETHEUS_PVC_STORAGE_CLASS': "ssd-csi",
+                'CL2_NETWORK_LATENCY_THRESHOLD': "0.5s",
+                'CL2_ENABLE_VIOLATIONS_FOR_NETWORK_PROGRAMMING_LATENCIES': "true",
+                'CL2_NETWORK_PROGRAMMING_LATENCY_THRESHOLD': "20s"
+            }
         )
     ]
     return results
@@ -1732,8 +1851,6 @@ def generate_versions():
             networking='calico',
             extra_dashboards=['kops-versions'],
             runs_per_day=8,
-            # This version marker is only used by the k/k presubmit job
-            publish_version_marker='gs://k8s-staging-kops/kops/releases/markers/master/latest-ci.txt',
         )
     ]
     for version in ['1.29', '1.28', '1.27', '1.26', '1.25']:
@@ -1755,7 +1872,7 @@ def generate_versions():
 ######################
 def generate_pipeline():
     results = []
-    for version in ['master', '1.30', '1.29']:
+    for version in ['master', '1.31', '1.30', '1.29']:
         branch = version if version == 'master' else f"release-{version}"
         publish_version_marker = f"gs://k8s-staging-kops/kops/releases/markers/{branch}/latest-ci-updown-green.txt"
         kops_version = f"https://storage.googleapis.com/k8s-staging-kops/kops/releases/markers/{branch}/latest-ci.txt"
@@ -1787,10 +1904,12 @@ def generate_presubmits_network_plugins():
         'cilium': r'^(upup\/models\/cloudup\/resources\/addons\/networking\.cilium\.io\/|pkg\/model\/(components\/containerd|firewall|components\/cilium|iam\/iam_builder)\.go|nodeup\/pkg\/model\/(context|networking\/cilium)\.go)',
         'cilium-etcd': r'^(upup\/models\/cloudup\/resources\/addons\/networking\.cilium\.io\/|pkg\/model\/(components\/containerd|firewall|components\/cilium|iam\/iam_builder)\.go|nodeup\/pkg\/model\/(context|networking\/cilium)\.go)',
         'cilium-eni': r'^(upup\/models\/cloudup\/resources\/addons\/networking\.cilium\.io\/|pkg\/model\/(components\/containerd|firewall|components\/cilium|iam\/iam_builder)\.go|nodeup\/pkg\/model\/(context|networking\/cilium)\.go)',
-        'flannel': r'^(upup\/models\/cloudup\/resources\/addons\/networking\.flannel\/|pkg\/model\/components\/containerd\.go)',
+        'flannel': r'^(upup\/models\/cloudup\/resources\/addons\/networking\.flannel\/)',
         'kuberouter': r'^(upup\/models\/cloudup\/resources\/addons\/networking\.kuberouter\/|pkg\/model\/components\/containerd\.go)',
+        'kindnet': r'^(upup\/models\/cloudup\/resources\/addons\/networking\.kindnet)',
     }
-    supports_ipv6 = {'amazonvpc', 'calico', 'cilium'}
+    supports_ipv6 = {'amazonvpc', 'calico', 'cilium', 'kindnet'}
+    supports_gce = {'calico', 'cilium', 'kindnet'}
     results = []
     for plugin, run_if_changed in plugins.items():
         k8s_version = 'stable'
@@ -1826,6 +1945,21 @@ def generate_presubmits_network_plugins():
                 optional=optional,
             )
         )
+        if plugin in supports_gce:
+            results.append(
+                presubmit_test(
+                    cloud='gce',
+                    k8s_version=k8s_version,
+                    kops_channel='alpha',
+                    name=f"pull-kops-e2e-gce-cni-{plugin}",
+                    networking=networking_arg,
+                    extra_flags=[
+                        f"--gce-service-account=default" # Workaround for test-infra#24747
+                    ],
+                    run_if_changed=run_if_changed,
+                    optional=optional,
+                )
+            )
         if plugin in supports_ipv6:
             optional = True
             if plugin == 'amazonvpc':
@@ -2098,6 +2232,15 @@ def generate_presubmits_e2e():
         ),
 
         presubmit_test(
+            branch='release-1.31',
+            k8s_version='1.31',
+            kops_channel='alpha',
+            name='pull-kops-e2e-k8s-aws-cilium-1-31',
+            networking='cilium',
+            tab_name='e2e-1-31',
+            always_run=True,
+        ),
+        presubmit_test(
             branch='release-1.30',
             k8s_version='1.30',
             kops_channel='alpha',
@@ -2338,9 +2481,57 @@ presubmits_files = {
     'kops-presubmits-scale.yaml': generate_presubmits_scale,
 }
 
-def main():
+def output_file(filename: pathlib.Path, contents: str, verify: bool) -> str:
+    """
+    Outputs one job configuration file.
+    Return list of errors.
+    """
+    tmp = tempfile.NamedTemporaryFile(
+        "w",
+        prefix=f"{filename}.",
+        delete=False,
+    )
+    with tmp:
+        tmp.write(contents)
+        tmp.close()
+
+        filepath = os.path.join(script_dir, filename)
+        if not os.path.exists(filepath) and verify:
+            os.unlink(tmp.name)
+            return f"Can't verify content: {filepath} doesn't exist"
+        if verify:
+            equal = filecmp.cmp(filepath, tmp.name, shallow=False)
+            if not equal:
+                with open(filepath) as f:
+                    diff = difflib.context_diff(
+                        str(f.read()).splitlines(keepends=True),
+                        contents.splitlines(keepends=True),
+                        fromfile=filepath,
+                        tofile=tmp.name,
+                    )
+                    sys.stdout.writelines(diff)
+                    return f"Generated content for {filename} differs from existing"
+        else:
+            shutil.move(tmp.name, filepath)
+    return ""
+
+def main(argv):
+    parser = argparse.ArgumentParser(
+        prog="kOps {}".format(os.path.basename(__file__)),
+        description="Generate kOps job configuration files from templates",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="Verify if generated files are the same as existing",
+    )
+    args = parser.parse_args(argv)
+
+    errors = []
     for filename, generate_func in periodics_files.items():
-        print(f"Generating {filename}")
+        if not args.verify:
+            print(f"Generating {filename}")
         output = []
         runs_per_week = 0
         job_count = 0
@@ -2351,10 +2542,11 @@ def main():
         output.insert(0, "# Test jobs generated by build_jobs.py (do not manually edit)\n")
         output.insert(1, f"# {job_count} jobs, total of {runs_per_week} runs per week\n")
         output.insert(2, "periodics:\n")
-        with open(filename, 'w') as fd:
-            fd.write(''.join(output))
+        errors.append(output_file(filename, ''.join(output), args.verify))
+
     for filename, generate_func in presubmits_files.items():
-        print(f"Generating {filename}")
+        if not args.verify:
+            print(f"Generating {filename}")
         output = []
         job_count = 0
         for res in generate_func():
@@ -2364,8 +2556,15 @@ def main():
         output.insert(1, f"# {job_count} jobs\n")
         output.insert(2, "presubmits:\n")
         output.insert(3, "  kubernetes/kops:\n")
-        with open(filename, 'w') as fd:
-            fd.write(''.join(output))
+        errors.append(output_file(filename, ''.join(output), args.verify))
+
+    errors = list(filter(None, errors))
+    if len(errors) > 0:
+        print(f"Errors: {len(errors)}")
+        for error in errors:
+            print(error)
+        return 1
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main(sys.argv[1:]))

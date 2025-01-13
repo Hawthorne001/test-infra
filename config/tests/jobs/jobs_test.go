@@ -29,6 +29,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"testing"
@@ -38,7 +39,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/utils/strings/slices"
 
 	prowapi "sigs.k8s.io/prow/pkg/apis/prowjobs/v1"
 	cfg "sigs.k8s.io/prow/pkg/config"
@@ -47,7 +47,7 @@ import (
 var configPath = flag.String("config", "../../../config/prow/config.yaml", "Path to prow config")
 var jobConfigPath = flag.String("job-config", "../../jobs", "Path to prow job config")
 var deckPath = flag.String("deck-path", "https://prow.k8s.io", "Path to deck")
-var bucket = flag.String("bucket", "kubernetes-jenkins", "Gcs bucket for log upload")
+var bucket = flag.String("bucket", "kubernetes-ci-logs", "Gcs bucket for log upload")
 var k8sProw = flag.Bool("k8s-prow", true, "If the config is for k8s prow cluster")
 
 // Loaded at TestMain.
@@ -1130,7 +1130,7 @@ func TestClusterName(t *testing.T) {
 	jobs := allStaticJobs()
 	for _, job := range jobs {
 		// Useful for identifiying how many jobs are running a specific cluster by omitting from this list
-		validClusters := []string{"default", "test-infra-trusted", "k8s-infra-kops-prow-build", "k8s-infra-prow-build", "k8s-infra-prow-build-trusted", "eks-prow-build-cluster"}
+		validClusters := []string{"default", "test-infra-trusted", "k8s-infra-aks-admin", "k8s-infra-kops-prow-build", "k8s-infra-prow-build", "k8s-infra-prow-build-trusted", "eks-prow-build-cluster"}
 		if !slices.Contains(validClusters, job.Cluster) || job.Cluster == "" {
 			err := fmt.Errorf("must run in one of these clusters: %v, found: %v", validClusters, job.Cluster)
 			t.Errorf("%v: %v", job.Name, err)
