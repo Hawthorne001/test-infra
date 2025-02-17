@@ -8,7 +8,7 @@ periodics:
   decorate: true
   decoration_config:
     timeout: 5h
-  interval: 12h
+  interval: 24h
   extra_refs:
   - org: kubernetes-sigs
     repo: cluster-api-provider-openstack
@@ -17,7 +17,7 @@ periodics:
   max_concurrency: 1
   spec:
     containers:
-    - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+    - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
       env:
       - name: "BOSKOS_HOST"
         value: "boskos.test-pods.svc.cluster.local"
@@ -62,7 +62,7 @@ periodics:
   decorate: true
   decoration_config:
     timeout: 5h
-  interval: 12h
+  interval: 24h
   extra_refs:
   - org: kubernetes-sigs
     repo: cluster-api-provider-openstack
@@ -71,16 +71,13 @@ periodics:
   max_concurrency: 1
   spec:
     containers:
-    - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+    - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
       env:
       - name: "BOSKOS_HOST"
         value: "boskos.test-pods.svc.cluster.local"
-      - name: E2E_ARGS
-        value: "-kubetest.use-ci-artifacts"
       command:
       - "runner.sh"
       - "./scripts/ci-conformance.sh"
-      - "--use-ci-artifacts"
       # we need privileged mode in order to do docker in docker
       securityContext:
         privileged: true
@@ -109,7 +106,7 @@ periodics:
   decorate: true
   decoration_config:
     timeout: 5h
-  interval: 12h
+  interval: 24h
   extra_refs:
   - org: kubernetes-sigs
     repo: cluster-api-provider-openstack
@@ -117,7 +114,7 @@ periodics:
     path_alias: "sigs.k8s.io/cluster-api-provider-openstack"
   spec:
     containers:
-    - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+    - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
       env:
       - name: "BOSKOS_HOST"
         value: "boskos.test-pods.svc.cluster.local"

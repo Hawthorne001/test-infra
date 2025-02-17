@@ -170,6 +170,10 @@ label:
     - team/katacoda
     # This label, for k/website, identifies PRs with large refactoring changes
     - refactor
+    # These labels are used by kubespray to test more stuff (or less for 'short') on some PRs
+    - ci-short
+    - ci-extended
+    - ci-full
 
   restricted_labels:
     kubernetes/kubernetes:
@@ -268,6 +272,7 @@ lgtm:
   - kubernetes-sigs/cluster-api-operator
   - kubernetes-sigs/cluster-api-provider-azure
   - kubernetes-sigs/cluster-api-provider-vsphere
+  - kubernetes-sigs/kjob
   - kubernetes-sigs/kueue
   store_tree_hash: true
 - repos:
@@ -327,14 +332,17 @@ blockades:
   - kubernetes/client-go
   blockregexps:
   - .*
-  exceptionregexps:
-  - ^README\.md$
-  explanation: "We do not accept changes directly against this repository, unless the change is to the `README.md` itself. Please see `CONTRIBUTING.md` for information on where and how to contribute instead."
+  explanation: "We do not accept changes directly against this repository. Please see `CONTRIBUTING.md` for information on where and how to contribute instead."
 - repos:
   - kubernetes/k8s.io
   blockregexps:
   - ^k8s.gcr.io/
   explanation: "k8s.gcr.io Image registry is frozen from April 2023. Please update the manifests in registry.k8s.io folder instead"
+- repos:
+  - kubernetes/cri-api
+  blockregexps:
+  - .*
+  explanation: "We do not accept changes directly against this repository. Please see `CONTRIBUTING.md` for information on where and how to contribute instead."
 
 blunderbuss:
   max_request_count: 2
@@ -460,30 +468,34 @@ slack:
 
 milestone_applier:
   kubernetes/enhancements:
-    master: v1.32
+    master: v1.33
   kubernetes/kubernetes:
-    master: v1.32
+    master: v1.33
+    release-1.32: v1.32
     release-1.31: v1.31
     release-1.30: v1.30
     release-1.29: v1.29
-    release-1.28: v1.28
   kubernetes/org:
-    main: v1.32
+    main: v1.33
   kubernetes/release:
-    master: v1.32
+    master: v1.33
   kubernetes/sig-release:
-    master: v1.32
+    master: v1.33
   kubernetes/test-infra:
-    master: v1.32
+    master: v1.33
+  kubernetes-sigs/kjob:
+    main: v0.2
+    release-0.1: v0.1
   kubernetes-sigs/kueue:
-    main: v0.9
-    release-0.6: v0.6
-    release-0.7: v0.7
+    main: v0.11
     release-0.8: v0.8
+    release-0.9: v0.9
+    release-0.10: v0.10
   kubernetes/k8s.io:
-    main: v1.32
+    main: v1.33
   kubernetes/kops:
-    master: v1.31
+    master: v1.32
+    release-1.31: v1.31
     release-1.30: v1.30
     release-1.29: v1.29
     release-1.28: v1.28
@@ -500,7 +512,8 @@ milestone_applier:
     release-1.17: v1.17
     release-1.16: v1.16
   kubernetes-sigs/cluster-api:
-    main: v1.9
+    main: v1.10
+    release-1.9: v1.9
     release-1.8: v1.8
     release-1.7: v1.7
     release-1.6: v1.6
@@ -531,7 +544,8 @@ milestone_applier:
     release-0.4: v0.4
     release-0.3: v0.3
   kubernetes-sigs/cluster-api-provider-vsphere:
-    main: v1.12
+    main: v1.13
+    release-1.12: v1.12
     release-1.11: v1.11
     release-1.10: v1.10
     release-1.9: v1.9
@@ -581,6 +595,9 @@ repo_milestone:
   kubernetes-sigs/node-feature-discovery:
     maintainers_team: node-feature-discovery-maintainers
     maintainers_friendly_name: Node Feature Discovery Maintainers
+  kubernetes/autoscaler:
+    maintainers_team: sig-autoscaling-milestone-maintainers
+    maintainers_friendly_name: Autoscaler milestone maintainers
   kubernetes/community:
     maintainers_team: community-milestone-maintainers
     maintainers_friendly_name: Community Milestone Maintainers
@@ -602,6 +619,9 @@ repo_milestone:
   kubernetes-sigs/kubebuilder:
     maintainers_team: kubebuilder-maintainers
     maintainers_friendly_name: Kubebuilder Maintainers
+  kubernetes-sigs/kjob:
+    maintainers_team: kjob-maintainers
+    maintainers_friendly_name: Kjob Maintainers
   kubernetes-sigs/kueue:
     maintainers_team: kueue-maintainers
     maintainers_friendly_name: Kueue Maintainers
@@ -701,7 +721,7 @@ require_matching_label:
   repo: kubernetes
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -712,7 +732,7 @@ require_matching_label:
   org: kubernetes
   repo: website
   issues: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -723,7 +743,7 @@ require_matching_label:
   org: kubernetes
   repo: kubectl
   issues: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -735,7 +755,7 @@ require_matching_label:
   repo: cloud-provider-gcp
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -827,7 +847,7 @@ require_matching_label:
   repo: ingress-nginx
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -846,6 +866,12 @@ require_matching_label:
     If Karpenter contributors determines this is a relevant issue, they will accept it by applying the `triage/accepted` label and provide further guidance.
 
     The `triage/accepted` label can be added by org members by writing `/triage accepted` in a comment.
+- missing_label: needs-priority
+  org: kubernetes-sigs
+  repo: karpenter
+  issues: true
+  prs: false
+  regexp: ^priority/
 - missing_label: needs-kind
   org: kubernetes
   repo: ingress-nginx
@@ -911,7 +937,7 @@ require_matching_label:
   repo: cluster-api
   issues: true
   prs: false
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -923,7 +949,7 @@ require_matching_label:
   repo: cluster-api-operator
   issues: true
   prs: false
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -935,7 +961,7 @@ require_matching_label:
   repo: cluster-api-provider-aws
   issues: true
   prs: false
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -964,7 +990,7 @@ require_matching_label:
   repo: cloud-provider-aws
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -976,7 +1002,7 @@ require_matching_label:
   repo: custom-metrics-apiserver
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -988,7 +1014,7 @@ require_matching_label:
   repo: instrumentation-addons
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -1000,7 +1026,7 @@ require_matching_label:
   repo: instrumentation-tools
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -1012,7 +1038,7 @@ require_matching_label:
   repo: klog
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -1024,7 +1050,7 @@ require_matching_label:
   repo: kube-state-metrics
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -1036,7 +1062,7 @@ require_matching_label:
   repo: metrics
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -1048,7 +1074,7 @@ require_matching_label:
   repo: gateway-api
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -1066,7 +1092,7 @@ require_matching_label:
   repo: metrics-server
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -1078,7 +1104,7 @@ require_matching_label:
   repo: prometheus-adapter
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -1090,7 +1116,7 @@ require_matching_label:
   repo: logtools
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -1102,7 +1128,7 @@ require_matching_label:
   repo: usage-metrics-collector
   issues: true
   prs: true
-  regexp: ^triage/accepted$
+  regexp: ^triage/
   missing_comment: |
     This issue is currently awaiting triage.
 
@@ -1185,6 +1211,10 @@ plugins:
     - welcome
     - wip
     - yuks
+
+  kubernetes/autoscaler:
+    plugins:
+    - milestone
 
   kubernetes/cloud-provider-aws:
     plugins:
@@ -1444,6 +1474,12 @@ plugins:
   kubernetes-sigs/kind:
     plugins:
     - override
+
+  kubernetes-sigs/kjob:
+    plugins:
+      - milestone
+      - milestonestatus
+      - release-note
 
   kubernetes-sigs/kubespray:
     plugins:
@@ -1797,6 +1833,12 @@ external_plugins:
     - issue_comment
     - pull_request
     endpoint: http://cherrypicker
+  kubernetes-sigs/container-object-storage-interface:
+  - name: cherrypicker
+    events:
+    - issue_comment
+    - pull_request
+    endpoint: http://cherrypicker
   kubernetes-sigs/controller-tools:
   - name: cherrypicker
     events:
@@ -1845,6 +1887,12 @@ external_plugins:
     - issue_comment
     - pull_request
     endpoint: http://cherrypicker
+  kubernetes-sigs/kjob:
+    - name: cherrypicker
+      events:
+        - issue_comment
+        - pull_request
+      endpoint: http://cherrypicker
   kubernetes-sigs/kueue:
   - name: cherrypicker
     events:
@@ -1945,6 +1993,24 @@ external_plugins:
     - issue_comment
     - pull_request
   etcd-io/etcd:
+  - name: cherrypicker
+    events:
+      - issue_comment
+      - pull_request
+  - name: needs-rebase
+    events:
+      - issue_comment
+      - pull_request
+  etcd-io/bbolt:
+  - name: cherrypicker
+    events:
+      - issue_comment
+      - pull_request
+  - name: needs-rebase
+    events:
+      - issue_comment
+      - pull_request
+  etcd-io/raft:
   - name: cherrypicker
     events:
       - issue_comment

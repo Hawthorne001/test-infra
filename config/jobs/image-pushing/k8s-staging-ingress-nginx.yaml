@@ -12,12 +12,12 @@ postsubmits:
       spec:
         serviceAccountName: gcb-builder
         containers:
-          - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+          - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
             command:
               - /run.sh
             args:
-              - --project=k8s-staging-ingress-nginx
-              - --scratch-bucket=gs://k8s-staging-ingress-nginx-gcb
+              - --project=k8s-staging-images
+              - --scratch-bucket=gs://k8s-staging-images-gcb
               - --env-passthrough=PULL_BASE_REF,PULL_BASE_SHA
               - --build-dir=.
               - --with-git-dir
@@ -36,12 +36,12 @@ postsubmits:
       spec:
         serviceAccountName: gcb-builder
         containers:
-          - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+          - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
             command:
               - /run.sh
             args:
-              - --project=k8s-staging-ingress-nginx
-              - --scratch-bucket=gs://k8s-staging-ingress-nginx-gcb
+              - --project=k8s-staging-images
+              - --scratch-bucket=gs://k8s-staging-images-gcb
               - --env-passthrough=PULL_BASE_REF,PULL_BASE_SHA
               - --build-dir=.
               - --with-git-dir
@@ -60,12 +60,12 @@ postsubmits:
       spec:
         serviceAccountName: gcb-builder
         containers:
-          - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+          - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
             command:
               - /run.sh
             args:
-              - --project=k8s-staging-ingress-nginx
-              - --scratch-bucket=gs://k8s-staging-ingress-nginx-gcb
+              - --project=k8s-staging-images
+              - --scratch-bucket=gs://k8s-staging-images-gcb
               - --env-passthrough=PULL_BASE_REF,PULL_BASE_SHA
               - --build-dir=.
               - --with-git-dir
@@ -84,12 +84,12 @@ postsubmits:
       spec:
         serviceAccountName: gcb-builder
         containers:
-          - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+          - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
             command:
               - /run.sh
             args:
-              - --project=k8s-staging-ingress-nginx
-              - --scratch-bucket=gs://k8s-staging-ingress-nginx-gcb
+              - --project=k8s-staging-images
+              - --scratch-bucket=gs://k8s-staging-images-gcb
               - --env-passthrough=PULL_BASE_REF,PULL_BASE_SHA
               - --build-dir=.
               - --with-git-dir
@@ -108,12 +108,12 @@ postsubmits:
       spec:
         serviceAccountName: gcb-builder
         containers:
-          - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+          - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
             command:
               - /run.sh
             args:
-              - --project=k8s-staging-ingress-nginx
-              - --scratch-bucket=gs://k8s-staging-ingress-nginx-gcb
+              - --project=k8s-staging-images
+              - --scratch-bucket=gs://k8s-staging-images-gcb
               - --env-passthrough=PULL_BASE_REF,PULL_BASE_SHA
               - --build-dir=.
               - --with-git-dir
@@ -132,12 +132,12 @@ postsubmits:
       spec:
         serviceAccountName: gcb-builder
         containers:
-          - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+          - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
             command:
               - /run.sh
             args:
-              - --project=k8s-staging-ingress-nginx
-              - --scratch-bucket=gs://k8s-staging-ingress-nginx-gcb
+              - --project=k8s-staging-images
+              - --scratch-bucket=gs://k8s-staging-images-gcb
               - --env-passthrough=PULL_BASE_REF,PULL_BASE_SHA
               - --build-dir=.
               - --with-git-dir
@@ -156,12 +156,12 @@ postsubmits:
       spec:
         serviceAccountName: gcb-builder
         containers:
-          - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+          - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
             command:
               - /run.sh
             args:
-              - --project=k8s-staging-ingress-nginx
-              - --scratch-bucket=gs://k8s-staging-ingress-nginx-gcb
+              - --project=k8s-staging-images
+              - --scratch-bucket=gs://k8s-staging-images-gcb
               - --env-passthrough=PULL_BASE_REF,PULL_BASE_SHA
               - --build-dir=.
               - --with-git-dir
@@ -180,12 +180,12 @@ postsubmits:
       spec:
         serviceAccountName: gcb-builder
         containers:
-          - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+          - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
             command:
               - /run.sh
             args:
-              - --project=k8s-staging-ingress-nginx
-              - --scratch-bucket=gs://k8s-staging-ingress-nginx-gcb
+              - --project=k8s-staging-images
+              - --scratch-bucket=gs://k8s-staging-images-gcb
               - --env-passthrough=PULL_BASE_REF,PULL_BASE_SHA
               - --build-dir=.
               - --with-git-dir
@@ -204,12 +204,12 @@ postsubmits:
       spec:
         serviceAccountName: gcb-builder
         containers:
-          - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+          - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
             command:
               - /run.sh
             args:
-              - --project=k8s-staging-ingress-nginx
-              - --scratch-bucket=gs://k8s-staging-ingress-nginx-gcb
+              - --project=k8s-staging-images
+              - --scratch-bucket=gs://k8s-staging-images-gcb
               - --env-passthrough=PULL_BASE_REF,PULL_BASE_SHA
               - --build-dir=.
               - --with-git-dir

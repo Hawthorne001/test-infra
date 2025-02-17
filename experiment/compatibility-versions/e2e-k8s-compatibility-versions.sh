@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Copyright 2024 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,15 +68,10 @@ signal_handler() {
 }
 trap signal_handler INT TERM
 
-# build kubernetes / node image, e2e binaries
+# build kubectl, kubernetes e2e test binaries, and ginkgo
 build() {
-  # build the node image w/ kubernetes
-  kind build node-image -v 1
-  # Ginkgo v1 is used by Kubernetes 1.24 and earlier, fallback if v2 is not available.
   GINKGO_SRC_DIR="vendor/github.com/onsi/ginkgo/v2/ginkgo"
-  if [ ! -d "$GINKGO_SRC_DIR" ]; then
-      GINKGO_SRC_DIR="vendor/github.com/onsi/ginkgo/ginkgo"
-  fi
+
   # make sure we have e2e requirements
   make all WHAT="cmd/kubectl test/e2e/e2e.test ${GINKGO_SRC_DIR}"
 
@@ -95,9 +90,6 @@ check_structured_log_support() {
 
 # up a cluster with kind
 create_cluster() {
-  # Grab the version of the cluster we're about to start
-  KUBE_VERSION="$(docker run --rm --entrypoint=cat "kindest/node:latest" /kind/version)"
-
   # Default Log level for all components in test clusters
   KIND_CLUSTER_LOG_LEVEL=${KIND_CLUSTER_LOG_LEVEL:-4}
 
@@ -109,7 +101,7 @@ create_cluster() {
   controllerManager_extra_args="      \"v\": \"${KIND_CLUSTER_LOG_LEVEL}\""
   apiServer_extra_args="      \"v\": \"${KIND_CLUSTER_LOG_LEVEL}\""
   kubelet_extra_args="      \"v\": \"${KIND_CLUSTER_LOG_LEVEL}\""
- 
+
   if [ -n "$CLUSTER_LOG_FORMAT" ]; then
       check_structured_log_support "CLUSTER_LOG_FORMAT"
       scheduler_extra_args="${scheduler_extra_args}
@@ -146,7 +138,7 @@ create_cluster() {
       exit 1
     fi
 
-    echo "Limiting to GA APIs and features for ${KUBE_VERSION}"
+    echo "Limiting to GA APIs and features for ${PREV_VERSION}"
     feature_gates='{"AllAlpha":false,"AllBeta":false}'
     runtime_config='{"api/alpha":"false", "api/beta":"false"}'
     ;;
@@ -207,7 +199,7 @@ EOF
   # TODO(BenTheElder): settle on verbosity for this script
   KIND_CREATE_ATTEMPTED=true
   kind create cluster \
-    --image=kindest/node:latest \
+    --image="kindest/node:v${PREV_VERSION}.0" \
     --retain \
     --wait=1m \
     -v=3 \
@@ -223,9 +215,6 @@ EOF
 
 # run e2es with ginkgo-e2e.sh
 run_tests() {
-  # Change to the cloned Kubernetes repository
-  pushd ../kubernetes
-
   # IPv6 clusters need some CoreDNS changes in order to work in k8s CI:
   # 1. k8s CI doesn´t offer IPv6 connectivity, so CoreDNS should be configured
   # to work in an offline environment:
@@ -286,17 +275,40 @@ run_tests() {
     "--report-dir=${ARTIFACTS}" '--disable-log-dump=true' &
   GINKGO_PID=$!
   wait "$GINKGO_PID"
-
-  # Return to the original directory
-  popd
 }
 
-# clone kubernetes repo for specific release branch
-clone_kubernetes_release() {
-  # Clone the specific Kubernetes release branch
-  # Replace "release-1.31" with the desired branch
-  KUBE_RELEASE_BRANCH=${KUBE_RELEASE_BRANCH:-release-1.31}
-  git clone --single-branch --branch "${KUBE_RELEASE_BRANCH}" https://github.com/kubernetes/kubernetes.git
+upgrade_cluster_components() {
+  # upgrade cluster components excluding the kubelet
+
+  # Get the retry attempts, defaulting to 5 if not set
+  RETRY_ATTEMPTS="${RETRY_ATTEMPTS:-5}"
+
+  local attempt=1
+  local success=false
+
+  bash -x "${UPGRADE_SCRIPT}" --no-kubelet | tee "${ARTIFACTS}/upgrade-output-1.txt"
+  bash -x "${UPGRADE_SCRIPT}" --no-kubelet | tee "${ARTIFACTS}/upgrade-output-2.txt"
+  # Run the script twice, is necessary for fully updating the binaries
+
+  while [ "$attempt" -le "$RETRY_ATTEMPTS" ]; do
+    echo "Attempt $attempt of $RETRY_ATTEMPTS to upgrade cluster..."
+    # Check if kubectl version reports the current version
+    kind export kubeconfig --name kind
+    if kubectl version | grep "Server Version:"| grep -q "$CURRENT_VERSION"; then
+      echo "Upgrade successful! kubectl version reports $CURRENT_VERSION"
+      success=true
+      break  # Exit the loop on success
+    fi
+
+    attempt=$((attempt + 1))
+    echo "Upgrade check $attempt failed. Retrying in 60s..."
+    sleep 60
+  done
+
+  if ! "$success"; then
+    echo "Upgrade failed after $RETRY_ATTEMPTS attempts."
+    exit 1
+  fi
 }
 
 main() {
@@ -307,6 +319,14 @@ main() {
   export ARTIFACTS="${ARTIFACTS:-${PWD}/_artifacts}"
   mkdir -p "${ARTIFACTS}"
 
+  # Get current and n-1 version numbers
+  MAJOR_VERSION=$(./hack/print-workspace-status.sh | awk '/STABLE_BUILD_MAJOR_VERSION/ {print $2}')
+  MINOR_VERSION=$(./hack/print-workspace-status.sh | awk '/STABLE_BUILD_MINOR_VERSION/ {split($2, minor, "+"); print minor[1]}')
+  export VERSION_DELTA=${VERSION_DELTA:-1}
+  export CURRENT_VERSION="${MAJOR_VERSION}.${MINOR_VERSION}"
+  export PREV_VERSION="${MAJOR_VERSION}.$((MINOR_VERSION - VERSION_DELTA))"
+  export EMULATED_VERSION="${PREV_VERSION}"
+
   # export the KUBECONFIG to a unique path for testing
   KUBECONFIG="${HOME}/.kube/kind-test-config"
   export KUBECONFIG
@@ -315,7 +335,7 @@ main() {
   # debug kind version
   kind version
 
-  # build kubernetes
+  # build kubernetes (for upgrade)
   build
   # in CI attempt to release some memory after building
   if [ -n "${KUBETEST_IN_DOCKER:-}" ]; then
@@ -323,14 +343,27 @@ main() {
     echo 1 > /proc/sys/vm/drop_caches || true
   fi
 
-  # create the cluster and run tests
   res=0
   create_cluster || res=$?
 
-  # Clone the specific Kubernetes release branch
-  clone_kubernetes_release
 
+  # Perform the upgrade.  Assume kind-upgrade.sh is in the same directory as this script.
+  UPGRADE_SCRIPT="${UPGRADE_SCRIPT:-${PWD}/../test-infra/experiment/compatibility-versions/kind-upgrade.sh}"
+  echo "Upgrading cluster with ${UPGRADE_SCRIPT}"
+
+  upgrade_cluster_components
+
+  # Clone the previous versions Kubernetes release branch
+  # TODO(aaron-prindle) extend the branches to test from n-1 -> n-1..3 as more k8s releases are done that support compatibility versions
+  export PREV_RELEASE_BRANCH="release-${EMULATED_VERSION}"
+  git clone --filter=blob:none --single-branch --branch "${PREV_RELEASE_BRANCH}" https://github.com/kubernetes/kubernetes.git "${PREV_RELEASE_BRANCH}"
+
+  # enter the release branch and run tests
+  pushd "${PREV_RELEASE_BRANCH}"
   run_tests || res=$?
+  popd
+
+
   cleanup || res=$?
   exit $res
 }

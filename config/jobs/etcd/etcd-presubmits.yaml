@@ -6,13 +6,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-build
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -31,13 +32,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-unit-test-amd64
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -59,13 +61,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-unit-test-arm64
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -89,13 +92,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-unit-test-386
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -117,13 +121,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-verify
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - /bin/bash
         args:
@@ -153,13 +158,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-govulncheck
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -180,13 +186,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-e2e-amd64
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -209,13 +216,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-e2e-386
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -237,13 +245,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-e2e-arm64
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -267,13 +276,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-integration-1-cpu-amd64
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -297,13 +307,15 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.5
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-integration-1-cpu-arm64
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -329,13 +341,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-integration-2-cpu-amd64
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -359,13 +372,15 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.5
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-integration-2-cpu-arm64
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -391,13 +406,14 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-integration-4-cpu-amd64
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -421,13 +437,15 @@ presubmits:
     always_run: true
     branches:
     - main
+    - release-3.5
+    - release-3.6
     decorate: true
     annotations:
       testgrid-dashboards: sig-etcd-presubmits
       testgrid-tab-name: pull-etcd-integration-4-cpu-arm64
     spec:
       containers:
-      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         args:
@@ -448,11 +466,43 @@ presubmits:
       nodeSelector:
         kubernetes.io/arch: arm64
 
+  - name: pull-etcd-smoke-4-cpu-arm64
+    cluster: k8s-infra-prow-build
+    always_run: true
+    branches:
+    - release-3.5
+    decorate: true
+    annotations:
+      testgrid-dashboards: sig-etcd-presubmits
+      testgrid-tab-name: pull-etcd-smoke-4-cpu-arm64
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
+        command:
+        - runner.sh
+        args:
+        - bash
+        - -c
+        - |
+          set -euo pipefail
+          export JUNIT_REPORT_DIR=${ARTIFACTS}
+          GOOS=linux GOARCH=arm64 CPU=4 make test-smoke
+        resources:
+          requests:
+            cpu: "6"
+            memory: "3Gi"
+          limits:
+            cpu: "6"
+            memory: "3Gi"
+      nodeSelector:
+        kubernetes.io/arch: arm64
+
   - name: pull-etcd-robustness-amd64
     cluster: k8s-infra-prow-build
     always_run: true
     branches:
       - main
+      - release-3.6
     decorate: true
     decoration_config:
       timeout: 60m
@@ -461,7 +511,7 @@ presubmits:
       testgrid-tab-name: pull-etcd-robustness-amd64
     spec:
       containers:
-        - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+        - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
           command:
             - runner.sh
           args:
@@ -474,7 +524,7 @@ presubmits:
               make install-lazyfs
               set -euo pipefail
               go clean -testcache
-              GO_TEST_FLAGS="-v --count 12 --timeout '30m' --run TestRobustness"
+              GO_TEST_FLAGS="-v --count 10 --timeout '30m' --run TestRobustness"
               make gofail-enable
               make build
               make gofail-disable
@@ -499,6 +549,7 @@ presubmits:
     always_run: true
     branches:
       - main
+      - release-3.6
     decorate: true
     decoration_config:
       timeout: 60m
@@ -507,7 +558,7 @@ presubmits:
       testgrid-tab-name: pull-etcd-robustness-arm64
     spec:
       containers:
-        - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20240903-6a352c5344-master
+        - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
           command:
             - runner.sh
           args:
@@ -520,7 +571,7 @@ presubmits:
               make install-lazyfs
               set -euo pipefail
               go clean -testcache
-              GO_TEST_FLAGS="-v --count 12 --timeout '30m' --run TestRobustness"
+              GO_TEST_FLAGS="-v --count 10 --timeout '30m' --run TestRobustness"
               make gofail-enable
               make build
               make gofail-disable
@@ -541,3 +592,275 @@ presubmits:
             privileged: true
       nodeSelector:
         kubernetes.io/arch: arm64
+
+  - name: pull-etcd-release-tests
+    cluster: k8s-infra-prow-build
+    always_run: true
+    branches:
+      - main
+      - release-3.6
+    decorate: true
+    labels:
+      preset-dind-enabled: "true"
+    decoration_config:
+      timeout: 60m
+    annotations:
+      testgrid-dashboards: sig-etcd-presubmits
+      testgrid-tab-name: pull-etcd-release-tests
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
+        command:
+          - runner.sh
+        args:
+          - bash
+          - -c
+          - |
+            gpg --batch --gen-key <<EOF
+            %no-protection
+            Key-Type: 1
+            Key-Length: 2048
+            Subkey-Type: 1
+            Subkey-Length: 2048
+            Name-Real: Prow
+            Name-Email: ci-robot@k8s.io
+            Expire-Date: 0
+            EOF
+            # Add the origin remote as the remote is unnamed in the prow infra.
+            git remote add origin https://github.com/etcd-io/etcd.git
+            DRY_RUN=true ./scripts/release.sh --no-upload --no-docker-push --no-gh-release --in-place 3.6.99
+            VERSION=3.6.99 ./scripts/test_images.sh
+        resources:
+          requests:
+            cpu: "4"
+            memory: "4Gi"
+          limits:
+            cpu: "4"
+            memory: "4Gi"
+        # docker-in-docker needs privileged mode
+        securityContext:
+          privileged: true
+
+  - name: pull-etcd-contrib-mixin
+    cluster: eks-prow-build-cluster
+    always_run: true
+    branches:
+      - main
+      - release-3.6
+    decorate: true
+    decoration_config:
+      timeout: 60m
+    annotations:
+      testgrid-dashboards: sig-etcd-presubmits
+      testgrid-tab-name: pull-etcd-contrib-mixin
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
+        command:
+          - runner.sh
+        args:
+          - bash
+          - -c
+          - |
+            make -C contrib/mixin tools test
+        resources:
+          requests:
+            cpu: "4"
+            memory: "4Gi"
+          limits:
+            cpu: "4"
+            memory: "4Gi"
+
+  - name: pull-etcd-fuzzing-v3rpc
+    cluster: eks-prow-build-cluster
+    always_run: true
+    branches:
+      - main
+      - release-3.6
+    decorate: true
+    decoration_config:
+      timeout: 60m
+    annotations:
+      testgrid-dashboards: sig-etcd-presubmits
+      testgrid-tab-name: pull-etcd-fuzzing-v3rpc
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250212-16f67660c2-master
+        command:
+          - runner.sh
+        args:
+          - bash
+          - -c
+          - |
+            return_code=0
+            CPU=4 make fuzz || return_code=$?
+            if [ "${return_code}" != 0 ]; then
+              zip -r "${ARTIFACTS}/results.zip" ./server/etcdserver/api/v3rpc/testdata/fuzz
+            fi
+            exit $return_code
+        resources:
+          requests:
+            cpu: "6"
+            memory: "4Gi"
+          limits:
+            cpu: "6"
+            memory: "4Gi"
+
+  - name: pull-etcd-grpcproxy-integration-amd64
+    optional: true # remove once the job is stable
+    cluster: eks-prow-build-cluster
+    always_run: true
+    branches:
+      - main
+      - release-3.6
+    decorate: true
+    decoration_config:
+      timeout: 60m
+    annotations:
+      testgrid-dashboards: sig-etcd-presubmits
+      testgrid-tab-name: pull-etcd-grpcproxy-integration-amd64
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250205-f1f3519e6b-master
+        command:
+          - runner.sh
+        args:
+          - bash
+          - -c
+          - |
+            CPU=4 make test-grpcproxy-integration
+        resources:
+          requests:
+            cpu: "6"
+            memory: "4Gi"
+          limits:
+            cpu: "6"
+            memory: "4Gi"
+
+  - name: pull-etcd-grpcproxy-e2e-amd64
+    optional: true # remove once the job is stable
+    cluster: eks-prow-build-cluster
+    always_run: true
+    branches:
+      - main
+      - release-3.6
+    decorate: true
+    decoration_config:
+      timeout: 60m
+    annotations:
+      testgrid-dashboards: sig-etcd-presubmits
+      testgrid-tab-name: pull-etcd-grpcproxy-e2e-amd64
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250205-f1f3519e6b-master
+        command:
+          - runner.sh
+        args:
+          - bash
+          - -c
+          - |
+            CPU=4 make test-grpcproxy-e2e
+        resources:
+          requests:
+            cpu: "6"
+            memory: "4Gi"
+          limits:
+            cpu: "6"
+            memory: "4Gi"
+
+  - name: pull-etcd-grpcproxy-integration-arm64
+    optional: true # remove once the job is stable
+    cluster: k8s-infra-prow-build
+    always_run: true
+    branches:
+      - main
+      - release-3.6
+    decorate: true
+    decoration_config:
+      timeout: 60m
+    annotations:
+      testgrid-dashboards: sig-etcd-presubmits
+      testgrid-tab-name: pull-etcd-grpcproxy-integration-arm64
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250205-f1f3519e6b-master
+        command:
+          - runner.sh
+        args:
+          - bash
+          - -c
+          - |
+            CPU=4 make test-grpcproxy-integration
+        resources:
+          requests:
+            cpu: "6"
+            memory: "4Gi"
+          limits:
+            cpu: "6"
+            memory: "4Gi"
+      nodeSelector:
+        kubernetes.io/arch: arm64
+
+  - name: pull-etcd-grpcproxy-e2e-arm64
+    optional: true # remove once the job is stable
+    cluster: k8s-infra-prow-build
+    always_run: true
+    branches:
+      - main
+      - release-3.6
+    decorate: true
+    decoration_config:
+      timeout: 60m
+    annotations:
+      testgrid-dashboards: sig-etcd-presubmits
+      testgrid-tab-name: pull-etcd-grpcproxy-e2e-arm64
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250205-f1f3519e6b-master
+        command:
+          - runner.sh
+        args:
+          - bash
+          - -c
+          - |
+            CPU=4 make test-grpcproxy-e2e
+        resources:
+          requests:
+            cpu: "6"
+            memory: "4Gi"
+          limits:
+            cpu: "6"
+            memory: "4Gi"
+      nodeSelector:
+        kubernetes.io/arch: arm64
+
+  - name: pull-etcd-coverage-report
+    optional: true # remove once the job is stable
+    cluster: eks-prow-build-cluster
+    always_run: false # set to true once the job works
+    branches:
+      - main
+      - release-3.6
+    decorate: true
+    decoration_config:
+      timeout: 60m
+    annotations:
+      testgrid-dashboards: sig-etcd-presubmits
+      testgrid-tab-name: pull-etcd-coverage-report
+    spec:
+      containers:
+      - image: us-central1-docker.pkg.dev/k8s-staging-test-infra/images/kubekins-e2e:v20250205-f1f3519e6b-master
+        command:
+          - runner.sh
+        args:
+          - bash
+          - -c
+          - |
+            make upload-coverage-report
+        resources:
+          requests:
+            cpu: "4"
+            memory: "4Gi"
+          limits:
+            cpu: "4"
+            memory: "4Gi"

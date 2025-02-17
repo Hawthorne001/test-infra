@@ -1,5 +1,5 @@
 plank:
-  job_url_template: 'https://prow.k8s.io/view/gs/kubernetes-jenkins/{{if eq .Spec.Type "presubmit"}}pr-logs/pull{{else if eq .Spec.Type "batch"}}pr-logs/pull{{else}}logs{{end}}{{if .Spec.Refs}}{{if ne .Spec.Refs.Org ""}}{{if ne .Spec.Refs.Org "kubernetes"}}/{{if and (eq .Spec.Refs.Org "kubernetes-sigs") (ne .Spec.Refs.Repo "poseidon")}}sigs.k8s.io{{else}}{{.Spec.Refs.Org}}{{end}}_{{.Spec.Refs.Repo}}{{else if ne .Spec.Refs.Repo "kubernetes"}}/{{.Spec.Refs.Repo}}{{end}}{{end}}{{end}}{{if eq .Spec.Type "presubmit"}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/batch{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}/'
+  job_url_template: 'https://prow.k8s.io/view/gs/kubernetes-ci-logs/{{if eq .Spec.Type "presubmit"}}pr-logs/pull{{else if eq .Spec.Type "batch"}}pr-logs/pull{{else}}logs{{end}}{{if .Spec.Refs}}{{if ne .Spec.Refs.Org ""}}{{if ne .Spec.Refs.Org "kubernetes"}}/{{if and (eq .Spec.Refs.Org "kubernetes-sigs") (ne .Spec.Refs.Repo "poseidon")}}sigs.k8s.io{{else}}{{.Spec.Refs.Org}}{{end}}_{{.Spec.Refs.Repo}}{{else if ne .Spec.Refs.Repo "kubernetes"}}/{{.Spec.Refs.Repo}}{{end}}{{end}}{{end}}{{if eq .Spec.Type "presubmit"}}/{{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}{{else if eq .Spec.Type "batch"}}/batch{{end}}/{{.Spec.Job}}/{{.Status.BuildID}}/'
   report_templates:
     '*': '[Full PR test history](https://prow.k8s.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}). [Your PR dashboard](https://prow.k8s.io/pr?query=is%3Apr%20state%3Aopen%20author%3A{{with index .Spec.Refs.Pulls 0}}{{.Author}}{{end}}). Please help us cut down on flakes by [linking to](https://git.k8s.io/community/contributors/devel/sig-testing/flaky-tests.md#filing-issues-for-flaky-tests) an [open issue](https://github.com/{{.Spec.Refs.Org}}/{{.Spec.Refs.Repo}}/issues?q=is:issue+is:open) when you hit one in your PR.'
   job_url_prefix_config:
@@ -7,7 +7,10 @@ plank:
   pod_pending_timeout: 15m
   pod_unscheduled_timeout: 5m
   job_queue_capacities:
+    # limits concurrency for image promoter jobs
     'k8sio-image-promo': 1
+    # limits concurrency for k8s-test-infra-staging project
+    'test-infra-staging-image-push': 1
   default_decoration_config_entries:
   - config:
       timeout: 2h
@@ -18,7 +21,7 @@ plank:
         entrypoint: "us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:v20240802-66b115076"
         sidecar: "us-docker.pkg.dev/k8s-infra-prow/images/sidecar:v20240802-66b115076"
       gcs_configuration:
-        bucket: "kubernetes-jenkins"
+        bucket: "kubernetes-ci-logs"
         path_strategy: "legacy"
         default_org: "kubernetes"
         default_repo: "kubernetes"
@@ -176,6 +179,7 @@ deck:
   # false
   skip_storage_path_validation: false
   additional_allowed_buckets:
+    - kubernetes-jenkins # required for 6/12 months from 11th of October 2024
     - k8s-ovn
     - containerd-integration
     - ppc64le-kubernetes
@@ -200,6 +204,8 @@ slack_reporter_configs:
     report_template: 'Job {{.Spec.Job}} of type {{.Spec.Type}} ended with state {{.Status.State}}. <{{.Status.URL}}|View logs>'
 
 branch-protection:
+  allow_disabled_policies: true
+  allow_disabled_job_policies: true
   orgs:
     kubernetes:
       protect: true
@@ -330,6 +336,11 @@ branch-protection:
           restrictions: # only allow admins
             users: []
             teams: []
+        externaljwt:
+          restrictions:
+            users: []
+            teams:
+            - stage-bots
         git-sync:
           enforce_admins: true
           restrictions: # only allow admins
@@ -350,6 +361,7 @@ branch-protection:
         kops:
           required_status_checks:
             contexts:
+            - tests-e2e-scenarios-bare-metal
             - build-linux-amd64
             - build-macos-amd64
             - build-windows-amd64
@@ -586,6 +598,9 @@ branch-protection:
               - Test Linux
               - Test MacOS
               - Test Windows
+        lwkd:
+          exclude:
+            - "^20\\d+" # don't protect weekly article dev branch
         metrics-server:
           branches:
             gh-pages:
@@ -774,14 +789,18 @@ tide:
     kubernetes-sigs/cluster-api-provider-digitalocean: squash
     kubernetes-sigs/cluster-api-provider-ibmcloud: squash
     kubernetes-sigs/ibm-vpc-block-csi-driver: squash
+    kubernetes-sigs/ingate: squash
     kubernetes-sigs/jobset: squash
     kubernetes-sigs/karpenter: squash
     kubernetes-sigs/kernel-module-management: rebase
+    kubernetes-sigs/kjob: squash
     kubernetes-sigs/krew-index: squash
     kubernetes-sigs/krew: squash
     kubernetes-sigs/kubespray: squash
     kubernetes-sigs/kueue: squash
     kubernetes-sigs/kui: rebase
+    kubernetes-sigs/lws: squash
+    kubernetes-sigs/gateway-api-inference-extension: squash
     kubernetes-sigs/security-profiles-operator: rebase
     kubernetes-sigs/service-catalog: squash
     kubernetes-sigs/gateway-api: squash

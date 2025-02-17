@@ -107,8 +107,16 @@ periodics:
             # enable IPV6 in bootstrap image
           - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
             value: "true"
+{{- if eq $.branch "release-1.7" "release-1.8" "release-1.9" }}
           - name: GINKGO_SKIP
             value: "\\[Conformance\\]"
+{{- else }}
+          - name: GINKGO_LABEL_FILTER
+            value: "!Conformance"
+{{- end }}
+          # Ensure required kind images get built.
+          - name: KIND_BUILD_IMAGES
+            value: "KUBERNETES_VERSION,KUBERNETES_VERSION_LATEST_CI,KUBERNETES_VERSION_UPGRADE_TO,KUBERNETES_VERSION_UPGRADE_FROM"
         # we need privileged mode in order to do docker in docker
         securityContext:
           privileged: true
@@ -156,8 +164,16 @@ periodics:
         # enable IPV6 in bootstrap image
       - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
         value: "true"
+{{- if eq $.branch "release-1.7" "release-1.8" "release-1.9" }}
       - name: GINKGO_SKIP
         value: "\\[Conformance\\]"
+{{- else }}
+      - name: GINKGO_LABEL_FILTER
+        value: "!Conformance"
+{{- end }}
+      # Ensure required kind images get built.
+      - name: KIND_BUILD_IMAGES
+        value: "KUBERNETES_VERSION,KUBERNETES_VERSION_LATEST_CI,KUBERNETES_VERSION_UPGRADE_TO,KUBERNETES_VERSION_UPGRADE_FROM"
       # This value determines the minimum Kubernetes
       # supported version for Cluster API management cluster
       # and can be found by referring to [Supported Kubernetes Version](https://cluster-api.sigs.k8s.io/reference/versions.html#supported-kubernetes-versions)
@@ -181,7 +197,6 @@ periodics:
     testgrid-tab-name: capi-e2e-mink8s-{{ ReplaceAll $.branch "." "-" }}
     testgrid-alert-email: sig-cluster-lifecycle-cluster-api-alerts@kubernetes.io
     testgrid-num-failures-to-alert: "4"
-{{ if eq $.branch "release-1.5" "release-1.6" | not }}
 - name: periodic-cluster-api-e2e-conformance-{{ ReplaceAll $.branch "." "-" }}
   cluster: eks-prow-build-cluster
   interval: {{ $.config.Interval }}
@@ -211,8 +226,16 @@ periodics:
       - runner.sh
       - "./scripts/ci-e2e.sh"
       env:
+{{- if eq $.branch "release-1.7" "release-1.8" "release-1.9" }}
       - name: GINKGO_FOCUS
         value: "\\[Conformance\\] \\[K8s-Install\\]"
+{{- else }}
+      - name: GINKGO_LABEL_FILTER
+        value: "(Conformance && K8s-Install)"
+{{- end }}
+      # Ensure required kind images get built.
+      - name: KIND_BUILD_IMAGES
+        value: "KUBERNETES_VERSION"
       # we need privileged mode in order to do docker in docker
       securityContext:
         privileged: true
@@ -257,8 +280,16 @@ periodics:
       - runner.sh
       - "./scripts/ci-e2e.sh"
       env:
+{{- if eq $.branch "release-1.7" "release-1.8" "release-1.9" }}
       - name: GINKGO_FOCUS
         value: "\\[Conformance\\] \\[K8s-Install-ci-latest\\]"
+{{- else }}
+      - name: GINKGO_LABEL_FILTER
+        value: "(Conformance && K8s-Install-ci-latest)"
+{{- end }}
+      # Ensure required kind images get built.
+      - name: KIND_BUILD_IMAGES
+        value: "KUBERNETES_VERSION_LATEST_CI"
       # we need privileged mode in order to do docker in docker
       securityContext:
         privileged: true
@@ -274,7 +305,6 @@ periodics:
     testgrid-tab-name: capi-e2e-conformance-ci-latest-{{ ReplaceAll $.branch "." "-" }}
     testgrid-alert-email: sig-cluster-lifecycle-cluster-api-alerts@kubernetes.io
     testgrid-num-failures-to-alert: "4"
-{{ end -}}
 {{ if eq $.branch "main" }}
 - name: periodic-cluster-api-e2e-latestk8s-{{ ReplaceAll $.branch "." "-" }}
   cluster: eks-prow-build-cluster
@@ -308,8 +338,16 @@ periodics:
             # enable IPV6 in bootstrap image
           - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
             value: "true"
+{{- if eq $.branch "release-1.7" "release-1.8" "release-1.9" }}
           - name: GINKGO_SKIP
             value: "\\[Conformance\\]"
+{{- else }}
+          - name: GINKGO_LABEL_FILTER
+            value: "!Conformance"
+{{- end }}
+          # Ensure required kind images get built.
+          - name: KIND_BUILD_IMAGES
+            value: "KUBERNETES_VERSION_LATEST_CI"
           - name: KUBERNETES_VERSION_MANAGEMENT
             value: {{ index (index $.versions ((last $.config.Upgrades).To)) "k8sRelease" }}
           - name: KUBERNETES_VERSION

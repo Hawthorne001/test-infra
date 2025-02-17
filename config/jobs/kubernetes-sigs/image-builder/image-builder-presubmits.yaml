@@ -13,7 +13,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
         args:
           - runner.sh
           - "./images/capi/scripts/ci-azure-e2e.sh"
@@ -35,13 +35,13 @@ presubmits:
     run_if_changed: 'images/capi/Makefile|images/capi/scripts/ci-azure-e2e\.sh|images/capi/packer/azure/.*'
     optional: true
     decoration_config:
-      timeout: 1h
+      timeout: 90m
     max_concurrency: 5
     path_alias: sigs.k8s.io/image-builder
     spec:
       serviceAccountName: azure
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
         args:
           - runner.sh
           - "./images/capi/scripts/ci-azure-e2e.sh"
@@ -68,7 +68,7 @@ presubmits:
     path_alias: sigs.k8s.io/image-builder
     spec:
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
           args:
             - runner.sh
             - "./images/capi/scripts/ci-json-sort.sh"
@@ -92,7 +92,7 @@ presubmits:
     path_alias: sigs.k8s.io/image-builder
     spec:
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
           args:
           - runner.sh
           - "./images/capi/scripts/ci-packer-validate.sh"
@@ -116,7 +116,7 @@ presubmits:
     path_alias: sigs.k8s.io/image-builder
     spec:
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
           args:
           - runner.sh
           - "./images/capi/scripts/ci-lint.sh"
@@ -130,12 +130,12 @@ presubmits:
     annotations:
       testgrid-dashboards: sig-cluster-lifecycle-image-builder
       testgrid-tab-name: pr-lint
-  - name: pull-image-builder-gcp-all
+  - name: pull-gcp-all
     cluster: k8s-infra-prow-build
     path_alias: sigs.k8s.io/image-builder
     always_run: false
-    optional: true
     decorate: true
+    run_if_changed: 'images/capi/(Makefile|ansible\.cfg)|images/capi/ansible/.*|images/capi/scripts/ci-gce\.sh|images/capi/packer/(config|goss|gce)/.*|images/capi/hack/ensure-(ansible|packer|jq|goss).*'
     decoration_config:
       timeout: 2h
     max_concurrency: 5
@@ -143,7 +143,7 @@ presubmits:
       preset-service-account: "true"
     spec:
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
           args:
             - runner.sh
             - "./images/capi/scripts/ci-gce.sh"
@@ -161,7 +161,7 @@ presubmits:
               cpu: 2000m
     annotations:
       testgrid-dashboards: sig-cluster-lifecycle-image-builder
-      testgrid-tab-name: pr-pull-image-builder-gcp-all
+      testgrid-tab-name: pr-pull-gcp-all
   - name: pull-goss-populate
     cluster: eks-prow-build-cluster
     path_alias: sigs.k8s.io/image-builder
@@ -172,7 +172,7 @@ presubmits:
     max_concurrency: 5
     spec:
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
           args:
             - runner.sh
             - "./images/capi/scripts/ci-goss-populate.sh"
@@ -198,7 +198,7 @@ presubmits:
     max_concurrency: 5
     spec:
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
           args:
             - runner.sh
             - "./images/capi/scripts/ci-container-image.sh"

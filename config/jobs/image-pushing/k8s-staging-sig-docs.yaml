@@ -7,13 +7,13 @@ postsubmits:
         testgrid-tab-name: post-website-push-image-k8s-website-hugo
       decorate: true
       run_if_changed: >-
-        ^(Dockerfile|Makefile|netlify\.toml|\.dockerignore|cloudbuild\.yaml)$
+        ^(Dockerfile|Makefile|netlify\.toml|\.dockerignore|cloudbuild\.yaml|package\.json|package-lock\.json)$
       branches:
         - ^main$
       spec:
         serviceAccountName: gcb-builder
         containers:
-          - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+          - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
             command:
               - /run.sh
             args:

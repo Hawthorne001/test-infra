@@ -13,14 +13,14 @@ postsubmits:
     spec:
       serviceAccountName: gcb-builder
       containers:
-        - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+        - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
           command:
           - /run.sh
           args:
           # this is the project GCB will run in, which is the same as the GCR
           # images are pushed to.
-          - --project=k8s-staging-infra-tools
-          - --scratch-bucket=gs://k8s-staging-infra-tools-gcb
+          - --project=k8s-staging-images
+          - --scratch-bucket=gs://k8s-staging-images-gcb
           - .
           env:
           - name: LOG_TO_STDOUT
@@ -36,14 +36,14 @@ postsubmits:
     spec:
       serviceAccountName: gcb-builder
       containers:
-        - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+        - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
           command:
           - /run.sh
           args:
           # this is the project GCB will run in, which is the same as the GCR
           # images are pushed to.
-          - --project=k8s-staging-infra-tools
-          - --scratch-bucket=gs://k8s-staging-infra-tools-gcb
+          - --project=k8s-staging-images
+          - --scratch-bucket=gs://k8s-staging-images-gcb
           - --with-git-dir
           - .
   kubernetes/k8s.io:
@@ -69,14 +69,14 @@ postsubmits:
     spec:
       serviceAccountName: gcb-builder
       containers:
-        - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+        - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
           command:
           - /run.sh
           args:
           # this is the project GCB will run in, which is the same as the GCR
           # images are pushed to.
-          - --project=k8s-staging-infra-tools
-          - --scratch-bucket=gs://k8s-staging-infra-tools-gcb
+          - --project=k8s-staging-images
+          - --scratch-bucket=gs://k8s-staging-images-gcb
           - .
           env:
           - name: LOG_TO_STDOUT
@@ -93,14 +93,14 @@ postsubmits:
     spec:
       serviceAccountName: gcb-builder
       containers:
-        - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+        - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
           command:
             - /run.sh
           args:
             # this is the project GCB will run in, which is the same as the GCR
             # images are pushed to.
-            - --project=k8s-staging-infra-tools
-            - --scratch-bucket=gs://k8s-staging-infra-tools-gcb
+            - --project=k8s-staging-images
+            - --scratch-bucket=gs://k8s-staging-images-gcb
             - --env-passthrough=PULL_BASE_REF
             - dns/octodns-docker
   - name: post-k8sio-push-image-k8s-infra
@@ -114,7 +114,7 @@ postsubmits:
     spec:
       serviceAccountName: gcb-builder
       containers:
-        - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+        - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
           command:
             - /run.sh
           args:
@@ -135,7 +135,7 @@ postsubmits:
     spec:
       serviceAccountName: gcb-builder
       containers:
-        - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+        - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
           command:
             - /run.sh
           args:
@@ -156,7 +156,7 @@ postsubmits:
     spec:
       serviceAccountName: gcb-builder
       containers:
-        - image: gcr.io/k8s-staging-test-infra/image-builder:v20240909-d870e42d3d
+        - image: gcr.io/k8s-staging-test-infra/image-builder:v20241224-fe22c549c1
           command:
             - /run.sh
           args:

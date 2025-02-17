@@ -15,7 +15,7 @@ presubmits:
     - ^main$
     spec:
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         command:
         - runner.sh
         args:
@@ -54,7 +54,7 @@ presubmits:
     - ^main$
     spec:
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         command:
         - "./scripts/ci-build.sh"
         resources:
@@ -83,7 +83,7 @@ presubmits:
     - ^main$
     spec:
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         command:
           - runner.sh
         args:
@@ -125,7 +125,7 @@ presubmits:
     - ^main$
     spec:
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         command:
           - runner.sh
         args:
@@ -168,7 +168,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         command:
           - runner.sh
         args:
@@ -211,7 +211,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         command:
           - runner.sh
         args:
@@ -248,7 +248,7 @@ presubmits:
     - ^main$
     spec:
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         command:
         - "runner.sh"
         - "make"
@@ -285,7 +285,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         command:
           - runner.sh
         args:
@@ -328,7 +328,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
           command:
             - runner.sh
           args:
@@ -372,7 +372,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
           command:
             - runner.sh
           args:
@@ -418,7 +418,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
           command:
             - runner.sh
           args:
@@ -464,7 +464,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
           command:
             - runner.sh
           args:
@@ -503,7 +503,7 @@ presubmits:
     - ^main$
     spec:
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         command:
           - runner.sh
         args:
@@ -540,7 +540,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         args:
           - runner.sh
           - "./scripts/ci-e2e.sh"
@@ -567,7 +567,7 @@ presubmits:
       preset-kind-volume-mounts: "true"
       preset-azure-community: "true"
     decorate: true
-    run_if_changed: '^test\/e2e\/(config\/azure-dev\.yaml)|(data\/shared\/v1beta1_provider\/metadata\.yaml)$'
+    run_if_changed: '^(test\/e2e\/(config\/azure-dev\.yaml|data\/shared\/v1beta1_provider\/metadata\.yaml)|azure\/scope\/.*)$'
     optional: false
     always_run: false
     branches:
@@ -581,7 +581,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
           args:
             - runner.sh
             - "./scripts/ci-e2e.sh"
@@ -620,7 +620,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
         command:
           - runner.sh
         args:
@@ -673,7 +673,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
           command:
             - runner.sh
           args:
@@ -721,7 +721,7 @@ presubmits:
     spec:
       serviceAccountName: azure
       containers:
-        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-1.29
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
           command:
             - runner.sh
           args:
@@ -773,12 +773,12 @@ presubmits:
       path_alias: k8s.io/kubernetes
     - org: kubernetes
       repo: perf-tests
-      base_ref: "master"
-      path_alias: "k8s.io/perf-tests"
+      base_ref: master
+      path_alias: k8s.io/perf-tests
     spec:
       serviceAccountName: azure
       containers:
-      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20240923-c8645c1a17-master
+      - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-master
         command:
         - runner.sh
         - ./scripts/ci-entrypoint.sh
@@ -789,8 +789,6 @@ presubmits:
           cd ${GOPATH}/src/k8s.io/perf-tests/ &&
           ./run-e2e.sh cluster-loader2
           --nodes=100 \
-          --prometheus-scrape-kubelets=true \
-          --prometheus-scrape-node-exporter \
           --provider=aks \
           --testconfig=testing/load/config.yaml \
           --testconfig=testing/huge-service/config.yaml \
@@ -798,6 +796,7 @@ presubmits:
           --testoverrides=./testing/experiments/enable_restart_count_check.yaml \
           --testoverrides=./testing/experiments/use_simple_latency_query.yaml \
           --testoverrides=./testing/overrides/load_throughput.yaml \
+          --report-dir=${ARTIFACTS}
           --v=2
         securityContext:
           privileged: true
@@ -809,28 +808,25 @@ presubmits:
           value: "false"
         - name: CLUSTER_TEMPLATE
           value: "templates/test/dev/cluster-template-custom-builds-load.yaml"
+        - name: AZURE_LOCATION
+          value: "northeurope"
+        - name: AZURE_CONTROL_PLANE_MACHINE_TYPE
+          value: "Standard_D8s_v3"
+        - name: CONTROL_PLANE_MACHINE_TYPE
+          value: "Standard_D8s_v3"
+        - name: AZURE_NODE_MACHINE_TYPE
+          value: "Standard_D8s_v3"
         - name: NODE_MACHINE_TYPE
           value: "Standard_D8s_v3"
         - name: TEST_WINDOWS
           value: "false"
         - name: "CONTROL_PLANE_MACHINE_COUNT"
-          value: "3"
+          value: "5"
         - name: WINDOWS_WORKER_MACHINE_COUNT
           value: "0" # Don't create windows workers
         - name: WORKER_MACHINE_COUNT
           value: "100"
-        # clusterloader2 variables
-        - name: ENABLE_PROMETHEUS_SERVER
-          value: "true"
-        - name: PROMETHEUS_SCRAPE_APISERVER_ONLY
-          value: "true"
-        - name: PROMETHEUS_APISERVER_SCRAPE_PORT
-          value: "6443"
-        - name: PROMETHEUS_SCRAPE_WINDOWS_NODE_EXPORTER
-          value: "true"
-        - name: CL2_PROMETHEUS_TOLERATE_MASTER
-          value: "true"
-        # from google cl2
+        # From google cl2
         - name: CL2_ENABLE_DNS_PROGRAMMING
           value: "true"
         - name: CL2_SCHEDULER_THROUGHPUT_THRESHOLD
@@ -839,15 +835,9 @@ presubmits:
           value: "true"
         - name: CL2_API_AVAILABILITY_PERCENTAGE_THRESHOLD
           value: "99.5"
-        # azuredisk variables - required for Prometheus PVC
+        # Don't install Azure disk CSI driver as it's installed using a HelmChartProxy
         - name: DEPLOY_AZURE_CSI_DRIVER
-          value: "true"
-        - name: AZUREDISK_CSI_DRIVER_VERSION
-          value: "master"
-        - name: PROMETHEUS_STORAGE_CLASS_PROVISIONER
-          value: "kubernetes.io/azure-disk"
-        - name: PROMETHEUS_STORAGE_CLASS_VOLUME_TYPE
-          value: "StandardSSD_LRS"
+          value: "false"
         resources:
           requests:
             cpu: "4"
@@ -858,3 +848,44 @@ presubmits:
     annotations:
       testgrid-dashboards: sig-cluster-lifecycle-cluster-api-provider-azure
       testgrid-tab-name: capz-pr-scalability-100-node-k8s-main
+  - name: pull-cluster-api-provider-azure-apiserver-ilb
+    cluster: eks-prow-build-cluster
+    labels:
+      preset-dind-enabled: "true"
+      preset-kind-volume-mounts: "true"
+      preset-azure-community: "true"
+    decorate: true
+    optional: true
+    always_run: false
+    branches:
+      - ^main$
+    path_alias: sigs.k8s.io/cluster-api-provider-azure
+    extra_refs:
+      - org: kubernetes
+        repo: kubernetes
+        base_ref: master
+        path_alias: k8s.io/kubernetes
+    spec:
+      serviceAccountName: azure
+      containers:
+        - image: gcr.io/k8s-staging-test-infra/kubekins-e2e:v20250212-16f67660c2-1.29
+          args:
+            - runner.sh
+            - "./scripts/ci-e2e.sh"
+          env:
+            - name: GINKGO_FOCUS
+              value: "\\[API-Server-ILB\\]"
+          # we need privileged mode in order to do docker in docker
+          securityContext:
+            privileged: true
+          resources:
+            limits:
+              cpu: 4
+              memory: 9Gi
+            requests:
+              cpu: 4
+              memory: 9Gi
+    annotations:
+      testgrid-dashboards: sig-cluster-lifecycle-cluster-api-provider-azure
+      testgrid-tab-name: capz-pr-apiserver-ilb-main
+      description: This job creates a vanilla CAPZ cluster with an ILB for the API server and verifies that the cluster is functional.

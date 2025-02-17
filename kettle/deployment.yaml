@@ -27,13 +27,13 @@ spec:
       serviceAccountName: kettle
       containers:
       - name: kettle
-        image: gcr.io/k8s-staging-infra-tools/kettle:latest
+        image: gcr.io/k8s-staging-test-infra/kettle:v20241015-f5fd905349
         imagePullPolicy: Always
         env:
         - name: DEPLOYMENT
           value: prod
         - name: SUBSCRIPTION_PATH
-          value: kubernetes-jenkins/gcs-changes/kettle-filtered
+          value: kubernetes-public/kubernetes-ci-logs-updates/k8s-infra-kettle
         resources:
           requests:
             memory: 4Gi
